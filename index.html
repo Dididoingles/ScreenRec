@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravador de Guia - Minimalist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #c20000;
+            --primary-hover: #990000;
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --gray-light: #333333;
+            --gray-text: #aaaaaa;
+            --white: #ffffff;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px 20px 20px;
+            position: relative;
+        }
+
+        /* Botão do Instagram no Canto Superior Esquerdo */
+        .instagram-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: var(--gray-light);
+            color: var(--white);
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .instagram-btn:hover {
+            background-color: #444444;
+            transform: translateY(-1px);
+        }
+
+        /* Container Principal com Suporte a Duas Colunas */
+        .container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1100px; /* Expandido para acomodar o modo lado a lado no desktop */
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin: auto 0;
+        }
+
+        header {
+            margin-bottom: 28px;
+            text-align: center;
+            width: 100%;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        header h1 i {
+            color: var(--primary);
+        }
+
+        header p {
+            color: var(--gray-text);
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        /* Estrutura Responsiva em Flexbox */
+        .main-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 32px;
+            align-items: flex-start;
+        }
+
+        /* Coluna Esquerda: Preview da Guia */
+        .left-column {
+            flex: 1.3;
+            width: 100%;
+        }
+
+        /* Coluna Direita: Microfone e Controles */
+        .right-column {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 0px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--gray-text);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--gray-light);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 0.95rem;
+            appearance: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-text);
+            pointer-events: none;
+        }
+
+        .preview-box {
+            width: 100%;
+            height: 320px; /* Aumentado levemente para aproveitar o espaço do Desktop */
+            background-color: #090909;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed var(--gray-light);
+            overflow: hidden;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            color: var(--gray-text);
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .preview-placeholder i {
+            color: var(--gray-light);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .status-badge .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+        }
+
+        .status-badge.recording .dot {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        .controls-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: auto; /* Empurra os botões para baixo se a coluna direita for alta */
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-primary:disabled {
+            background-color: var(--gray-light);
+            color: var(--gray-text);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-light);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background-color: #444444;
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            border: 1px solid #444444;
+            color: #ff4444;
+        }
+
+        .btn-danger:hover {
+            background-color: rgba(255, 68, 68, 0.1);
+            border-color: #ff4444;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Rodapé Personalizado */
+        footer {
+            margin-top: 24px;
+            font-size: 0.85rem;
+            color: var(--gray-text);
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        /* Responsividade para Celulares (Mobile Flex de coluna única) */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px; /* Garante que o botão do topo não cubra o conteúdo */
+            }
+
+            .main-layout {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .preview-box {
+                height: 220px;
+            }
+
+            .instagram-btn {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://www.instagram.com/dicarvalho.prof/" target="_blank" class="instagram-btn">
+        <i data-lucide="instagram" size="16"></i> Siga a @dicarvalho.prof
+    </a>
+
+    <div class="container">
+        <header>
+            <h1><i data-lucide="video"></i> ScreenRec</h1>
+            <p>Grave uma guia do seu navegador com narração</p>
+        </header>
+
+        <div class="main-layout">
+            
+            <div class="left-column">
+                <div class="preview-box">
+                    <div class="status-badge" id="status-badge">
+                        <div class="dot"></div>
+                        <span id="status-text">Gravando</span>
+                    </div>
+                    <div class="preview-placeholder" id="preview-placeholder">
+                        <i data-lucide="monitor" size="48"></i>
+                        <span>A captura da guia aparecerá aqui</span>
+                    </div>
+                    <video id="preview-video" autoplay muted></video>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="form-group" id="mic-section">
+                    <label for="mic-select">Selecione o Microfone </label>
+                    <div class="select-wrapper">
+                        <select id="mic-select">
+                            <option value="">Carregando dispositivos...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="controls-group">
+                    <button id="btn-start" class="btn-primary">
+                        <i data-lucide="circle-dot"></i> Selecionar Guia e Gravar
+                    </button>
+
+                    <button id="btn-stop" class="btn-primary btn-danger hidden">
+                        <i data-lucide="square"></i> Parar Gravação
+                    </button>
+
+                    <div id="action-buttons" class="btn-row hidden">
+                        <button id="btn-download" class="btn-primary">
+                            <i data-lucide="download"></i> Salvar Vídeo
+                        </button>
+                        <button id="btn-discard" class="btn-secondary">
+                            <i data-lucide="trash-2"></i> Descartar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        Compartilhe este projeto e ajude a revolucionar a educação.
+    </footer>
+
+    <script>
+        // Inicialização de Ícones Lucide
+        lucide.createIcons();
+
+        // Elementos do DOM
+        const micSelect = document.getElementById('mic-select');
+        const btnStart = document.getElementById('btn-start');
+        const btnStop = document.getElementById('btn-stop');
+        const actionButtons = document.getElementById('action-buttons');
+        const btnDownload = document.getElementById('btn-download');
+        const btnDiscard = document.getElementById('btn-discard');
+        const previewVideo = document.getElementById('preview-video');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+        const statusBadge = document.getElementById('status-badge');
+        const statusText = document.getElementById('status-text');
+
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let streamTracks = [];
+
+        // Carregar e listar os microfones disponíveis
+        async function setupMicrophones() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioDevices = devices.filter(device => device.kind === 'audioinput');
+                
+                micSelect.innerHTML = '';
+                
+                if (audioDevices.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.text = "Nenhum microfone encontrado";
+                    micSelect.appendChild(opt);
+                    return;
+                }
+
+                audioDevices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Microfone (${device.deviceId.slice(0, 5)})`;
+                    micSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Erro ao acessar dispositivos de áudio:", err);
+                micSelect.innerHTML = '<option value="">Permissão de áudio negada</option>';
+            }
+        }
+
+        // Inicia o processo de gravação
+        async function startRecording() {
+            recordedChunks = [];
+            streamTracks = [];
+
+            try {
+                const displayStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        displaySurface: "browser",
+                        width: { ideal: 1920 },    
+                        height: { ideal: 1080 }
+                    },
+                    audio: false 
+                });
+
+                const selectedMicId = micSelect.value;
+                const audioStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        deviceId: selectedMicId ? { exact: selectedMicId } : undefined,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    }
+                });
+
+                const combinedStream = new MediaStream();
+                
+                displayStream.getVideoTracks().forEach(track => {
+                    combinedStream.addTrack(track);
+                    streamTracks.push(track);
+                });
+
+                audioStream.getAudioTracks().forEach(track => {
+                    combinedStream.addTrack(track);
+                    streamTracks.push(track);
+                });
+
+                previewVideo.srcObject = combinedStream;
+                previewPlaceholder.style.display = 'none';
+                previewVideo.style.display = 'block';
+
+                let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/webm;codecs=vp8,opus' };
+                }
+
+                mediaRecorder = new MediaRecorder(combinedStream, options);
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) {
+                        recordedChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    showUIState('review');
+                };
+
+                displayStream.getVideoTracks()[0].onended = () => {
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        stopRecording();
+                    }
+                };
+
+                mediaRecorder.start(1000); 
+                showUIState('recording');
+
+            } catch (err) {
+                console.error("Falha ao iniciar a captura:", err);
+                resetToDefault();
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            streamTracks.forEach(track => track.stop());
+        }
+
+        function downloadVideo() {
+            if (recordedChunks.length === 0) return;
+
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+            a.href = url;
+            a.download = `rec-${timestamp}.webm`;
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                resetToDefault();
+            }, 100);
+        }
+
+        function discardVideo() {
+            recordedChunks = [];
+            resetToDefault();
+        }
+
+        function showUIState(state) {
+            if (state === 'recording') {
+                btnStart.classList.add('hidden');
+                btnStop.classList.remove('hidden');
+                actionButtons.classList.add('hidden');
+                micSelect.disabled = true;
+                
+                statusBadge.style.display = 'flex';
+                statusBadge.classList.add('recording');
+                statusText.innerText = "Gravando";
+            } else if (state === 'review') {
+                btnStart.classList.add('hidden');
+                btnStop.classList.add('hidden');
+                actionButtons.classList.remove('hidden');
+                
+                statusBadge.style.display = 'flex';
+                statusBadge.classList.remove('recording');
+                statusText.innerText = "Pronto";
+            }
+        }
+
+        function resetToDefault() {
+            btnStart.classList.remove('hidden');
+            btnStop.classList.add('hidden');
+            actionButtons.classList.add('hidden');
+            micSelect.disabled = false;
+            
+            statusBadge.style.display = 'none';
+            previewVideo.style.display = 'none';
+            previewPlaceholder.style.display = 'flex';
+            
+            if (previewVideo.srcObject) {
+                previewVideo.srcObject = null;
+            }
+        }
+
+        btnStart.addEventListener('click', startRecording);
+        btnStop.addEventListener('click', stopRecording);
+        btnDownload.addEventListener('click', downloadVideo);
+        btnDiscard.addEventListener('click', discardVideo);
+
+        window.addEventListener('DOMContentLoaded', setupMicrophones);
+    </script>
+</body>
+</html>
